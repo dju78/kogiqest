@@ -8,12 +8,25 @@ let client;
 if (supabaseUrl && supabaseAnonKey) {
     client = createClient(supabaseUrl, supabaseAnonKey);
 } else {
-    console.warn('Supabase keys missing. Report feature will be disabled.');
-    // Mock client to prevent crashes
+    console.warn('Supabase keys missing. Authentication and reporting features will be disabled.');
+
+    // Mock client to prevent white-screen crashes
     client = {
+        auth: {
+            getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+            getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+            onAuthStateChange: () => ({
+                data: { subscription: { unsubscribe: () => { } } }
+            }),
+            signInWithPassword: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
+            signUp: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
+            signOut: () => Promise.resolve({ error: null })
+        },
         from: () => ({
             insert: () => Promise.resolve({ error: { message: 'Supabase not configured (Missing Keys)' } }),
-            select: () => Promise.resolve({ data: [], error: null })
+            select: () => Promise.resolve({ data: [], error: null }),
+            update: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
+            delete: () => Promise.resolve({ error: { message: 'Supabase not configured' } })
         })
     };
 }

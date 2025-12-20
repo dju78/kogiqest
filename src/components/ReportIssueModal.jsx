@@ -14,7 +14,7 @@ const ReportIssueModal = ({ isOpen, onClose, questionId, questionText, user }) =
         setStatus('submitting');
 
         try {
-            const userId = user?.id || 'anonymous';
+            const userId = user?.id || null;
             const { error } = await supabase
                 .from('question_suggestions')
                 .insert([
