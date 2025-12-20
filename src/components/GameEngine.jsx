@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, CheckCircle, XCircle, ArrowRight, RotateCcw, Trophy } from 'lucide-react';
+import { ChevronLeft, CheckCircle, XCircle, ArrowRight, RotateCcw, Trophy, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GAME_LEVELS } from '../lib/constants';
 import Bubbles from './Bubbles';
+import ReportIssueModal from './ReportIssueModal';
 
 const GameEngine = ({ onExit }) => {
     const [currentLevelIndex, setCurrentLevelIndex] = useState(0);
@@ -13,6 +14,7 @@ const GameEngine = ({ onExit }) => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [feedback, setFeedback] = useState(null); // 'correct' or 'incorrect'
     const [levelCorrectCount, setLevelCorrectCount] = useState(0); // Track correct answers for current level
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     const currentLevel = GAME_LEVELS[currentLevelIndex];
     const currentQuestion = currentLevel.questions[currentQuestionIndex];
@@ -167,6 +169,15 @@ const GameEngine = ({ onExit }) => {
                                         </button>
                                     ))}
                                 </div>
+                                <div className="mt-6 flex justify-end">
+                                    <button
+                                        onClick={() => setIsReportModalOpen(true)}
+                                        className="text-xs text-slate-500 hover:text-cyan-400 flex items-center gap-1 transition-colors opacity-60 hover:opacity-100"
+                                    >
+                                        <AlertTriangle className="w-3 h-3" />
+                                        Report an issue
+                                    </button>
+                                </div>
                             </motion.div>
                         )}
 
@@ -286,6 +297,13 @@ const GameEngine = ({ onExit }) => {
                     </div>
                 </div>
             </div>
+
+            <ReportIssueModal
+                isOpen={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                questionId={currentQuestion ? currentQuestion.id : 'unknown'}
+                questionText={currentQuestion ? currentQuestion.question : ''}
+            />
         </div>
     );
 };
