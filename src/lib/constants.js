@@ -1,11 +1,11 @@
-import { KOGI_DATA } from './kogi_data'; // General History & Geography
-import { KOGI_POLITICS_DATA } from './kogi_politics_data'; // Politics
-import { KOGI_PLACES_DATA } from './kogi_places_data'; // People & places
-import { KOGI_TRIBES_DATA } from './kogi_tribes_data'; // Minority Tribes (Ogori, Nupe, etc)
-import { KOGI_EXPANSION_DATA } from './kogi_expansion_data'; // Expansion Pack
-import { kogiIndustriesQuestions } from './kogi_industries_data'; // Industries (Level 8)
-import { kogiCultureGeneralQuestions } from './kogi_culture_general_data'; // Culture (Level 9)
-import { kogiNotablePeopleQuestions } from './kogi_notable_people_data'; // Notable People (Level 10)
+import { KOGI_DATA } from './kogi_data.js'; // General History & Geography
+import { KOGI_POLITICS_DATA } from './kogi_politics_data.js'; // Politics
+import { KOGI_PLACES_DATA } from './kogi_places_data.js'; // People & places
+import { KOGI_TRIBES_DATA } from './kogi_tribes_data.js'; // Minority Tribes (Ogori, Nupe, etc)
+import { KOGI_EXPANSION_DATA } from './kogi_expansion_data.js'; // Expansion Pack
+import { kogiIndustriesQuestions } from './kogi_industries_data.js'; // Industries (Level 8)
+import { kogiCultureGeneralQuestions } from './kogi_culture_general_data.js'; // Culture (Level 9)
+import { kogiNotablePeopleQuestions } from './kogi_notable_people_data.js'; // Notable People (Level 10)
 
 // Combine all data for easier access if needed
 const allQuestions = [

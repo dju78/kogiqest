@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { getOrCreateUserId } from '../lib/user';
 import { X, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,34 +8,45 @@ const ReportIssueModal = ({ isOpen, onClose, questionId, questionText }) => {
     const [suggestion, setSuggestion] = useState('');
     const [comment, setComment] = useState('');
     const [status, setStatus] = useState('idle'); // idle, submitting, success, error
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus('submitting');
 
         try {
+            const userId = getOrCreateUserId();
             const { error } = await supabase
                 .from('question_suggestions')
                 .insert([
                     {
                         question_id: questionId,
+                        user_id: userId,
                         suggested_answer: suggestion,
                         user_comment: comment,
                         status: 'pending' // pending review
                     }
                 ]);
 
-            if (error) throw error;
+            if (error) {
+                // Check if it's the mock client error
+                if (error.message && error.message.includes('Missing Keys')) {
+                    throw new Error('Supabase is not configured yet. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.');
+                }
+                throw error;
+            }
 
             setStatus('success');
             setTimeout(() => {
                 onClose();
                 setStatus('idle');
+                setErrorMessage('');
                 setSuggestion('');
                 setComment('');
             }, 2000);
         } catch (err) {
             console.error('Error submitting report:', err);
+            setErrorMessage(err.message || 'Failed to submit report. Please try again.');
             setStatus('error');
         }
     };
@@ -103,7 +115,7 @@ const ReportIssueModal = ({ isOpen, onClose, questionId, questionText }) => {
 
                         {status === 'error' && (
                             <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
-                                Failed to submit report. Please try again.
+                                {errorMessage}
                             </div>
                         )}
 
