@@ -5,7 +5,7 @@ import { GAME_LEVELS } from '../lib/constants';
 import Bubbles from './Bubbles';
 import ReportIssueModal from './ReportIssueModal';
 
-const GameEngine = ({ onExit }) => {
+const GameEngine = ({ onExit, user }) => {
     const [currentLevelIndex, setCurrentLevelIndex] = useState(0);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
@@ -300,6 +300,7 @@ const GameEngine = ({ onExit }) => {
 
             <ReportIssueModal
                 isOpen={isReportModalOpen}
+                user={user}
                 onClose={() => setIsReportModalOpen(false)}
                 questionId={currentQuestion ? currentQuestion.id : 'unknown'}
                 questionText={currentQuestion ? currentQuestion.question : ''}

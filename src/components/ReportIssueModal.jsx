@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { getOrCreateUserId } from '../lib/user';
 import { X, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ReportIssueModal = ({ isOpen, onClose, questionId, questionText }) => {
+const ReportIssueModal = ({ isOpen, onClose, questionId, questionText, user }) => {
     const [suggestion, setSuggestion] = useState('');
     const [comment, setComment] = useState('');
     const [status, setStatus] = useState('idle'); // idle, submitting, success, error
@@ -15,7 +14,7 @@ const ReportIssueModal = ({ isOpen, onClose, questionId, questionText }) => {
         setStatus('submitting');
 
         try {
-            const userId = getOrCreateUserId();
+            const userId = user?.id || 'anonymous';
             const { error } = await supabase
                 .from('question_suggestions')
                 .insert([
@@ -116,6 +115,12 @@ const ReportIssueModal = ({ isOpen, onClose, questionId, questionText }) => {
                         {status === 'error' && (
                             <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
                                 {errorMessage}
+                            </div>
+                        )}
+
+                        {!user && (
+                            <div className="text-yellow-400 text-xs bg-yellow-500/10 p-3 rounded-lg border border-yellow-500/20 mb-4">
+                                Note: You are reporting as an anonymous user. Sign in to track your reports and earn community points!
                             </div>
                         )}
 
