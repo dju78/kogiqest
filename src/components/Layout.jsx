@@ -42,10 +42,13 @@ const Layout = ({ children, user, onLoginClick, onLogoutClick }) => {
 
             <main className="flex-1 relative">
                 {/* Background decorative elements */}
-                <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none" />
-                <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" style={{ animationDelay: '2s' }} />
+                <div className="absolute top-[30%] left-[20%] w-[20%] h-[20%] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none animate-float" />
 
-                {children}
+                <div className="relative z-10 h-full">
+                    {children}
+                </div>
             </main>
         </div>
     );

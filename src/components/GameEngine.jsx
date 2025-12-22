@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, CheckCircle, XCircle, ArrowRight, RotateCcw, Trophy, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabase';
 import { GAME_LEVELS } from '../lib/constants';
 import Bubbles from './Bubbles';
 import ReportIssueModal from './ReportIssueModal';
@@ -35,12 +36,33 @@ const GameEngine = ({ onExit, user }) => {
     // Save High Score on game complete
     useEffect(() => {
         if (gameState === 'gameComplete') {
+            // Local high score
             if (score > highScore) {
                 setHighScore(score);
                 localStorage.setItem('kogi-quest-highscore', score.toString());
             }
+
+            // Global leaderboard submission
+            if (user && score > 0) {
+                const submitScore = async () => {
+                    try {
+                        const { error } = await supabase
+                            .from('leaderboard')
+                            .insert({
+                                user_id: user.id,
+                                username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Explorer',
+                                score: score,
+                                level: currentLevelIndex + 1
+                            });
+                        if (error) throw error;
+                    } catch (err) {
+                        console.error('Error submitting score to leaderboard:', err);
+                    }
+                };
+                submitScore();
+            }
         }
-    }, [gameState, score, highScore]);
+    }, [gameState, score, highScore, user, currentLevelIndex]);
 
     const handleOptionSelect = (optionIndex) => {
         if (selectedOption !== null) return; // Prevent multiple clicks
@@ -130,7 +152,10 @@ const GameEngine = ({ onExit, user }) => {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="h-full flex flex-col justify-center max-w-3xl mx-auto w-full"
+                                className={`h-full flex flex-col justify-center max-w-3xl mx-auto w-full transition-all duration-300
+                                    ${feedback === 'incorrect' ? 'animate-shake' : ''}
+                                    ${feedback === 'correct' ? 'animate-success' : ''}
+                                `}
                             >
                                 <div className="mb-4 text-cyan-300 font-medium tracking-wide">
                                     {currentLevel.title} &bull; Q{currentQuestionIndex + 1}/{currentLevel.questions.length}
@@ -257,8 +282,11 @@ const GameEngine = ({ onExit, user }) => {
                 </div>
 
                 {/* Levels Sidebar (Desktop) */}
-                <div className="hidden lg:block w-72 bg-white/5 rounded-2xl border border-white/10 p-6 overflow-y-auto">
-                    <h3 className="text-slate-400 uppercase tracking-widest text-xs font-bold mb-6">Quest Map</h3>
+                <div className="hidden lg:block w-72 glass rounded-3xl p-6 overflow-y-auto">
+                    <h3 className="text-slate-400 uppercase tracking-widest text-xs font-bold mb-6 flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse" />
+                        Quest Map
+                    </h3>
                     <div className="space-y-4">
                         {GAME_LEVELS.map((level, index) => {
                             const isActive = index === currentLevelIndex;
@@ -268,28 +296,32 @@ const GameEngine = ({ onExit, user }) => {
                             return (
                                 <div
                                     key={level.id}
-                                    className={`relative p-4 rounded-xl border transition-all duration-300
-                                        ${isActive ? 'bg-cyan-500/10 border-cyan-500' : ''}
-                                        ${isPast ? 'bg-green-500/5 border-green-500/30 opacity-70' : ''}
-                                        ${isFuture ? 'bg-white/5 border-white/5 opacity-50' : ''}
+                                    className={`relative p-4 rounded-2xl border transition-all duration-500
+                                        ${isActive ? 'bg-cyan-500/20 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.2)] scale-[1.02]' : ''}
+                                        ${isPast ? 'bg-green-500/5 border-green-500/20 opacity-60' : ''}
+                                        ${isFuture ? 'bg-white/5 border-white/5 opacity-40' : ''}
                                     `}
                                 >
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
-                                            ${isActive ? 'bg-cyan-500 text-slate-900' : ''}
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors
+                                            ${isActive ? 'bg-cyan-400 text-slate-900 shadow-[0_0_10px_rgba(34,211,238,0.5)]' : ''}
                                             ${isPast ? 'bg-green-500/20 text-green-400' : ''}
                                             ${isFuture ? 'bg-white/10 text-slate-500' : ''}
                                         `}>
-                                            {isPast ? <CheckCircle className="w-4 h-4" /> : index + 1}
+                                            {isPast ? <CheckCircle className="w-5 h-5" /> : index + 1}
                                         </div>
-                                        <div className={`font-bold text-sm ${isActive ? 'text-white' : 'text-slate-400'}`}>
+                                        <div className={`font-bold text-sm tracking-tight ${isActive ? 'text-white' : 'text-slate-400'}`}>
                                             Level {index + 1}
                                         </div>
                                     </div>
                                     {isActive && (
-                                        <div className="text-xs text-cyan-300 ml-9">
-                                            Current Location
-                                        </div>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -5 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="text-[10px] text-cyan-300 ml-11 font-medium uppercase tracking-widest"
+                                        >
+                                            In Exploration
+                                        </motion.div>
                                     )}
                                 </div>
                             );

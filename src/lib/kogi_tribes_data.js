@@ -5,28 +5,28 @@ export const KOGI_TRIBES_DATA = [
     {
         id: "trb1",
         question: "Which festival is the most famous cultural event of the Ogori people, celebrating womanhood?",
-        options: ["Ovia Osese", "Ekuechi", "Ocho", "New Yam Festival"],
-        answer: 0,
+        options: ["Ekuechi", "Ovia Osese", "New Yam Festival", "Ocho"],
+        answer: 1,
         category: "Tribes"
     },
     {
         id: "trb2",
         question: "The 'Ovia Osese' festival is primarily a rite of passage for whom?",
-        options: ["Maidens (Young Girls)", "Warriors", "Elders", "Hunters"],
+        options: ["Maidens (Young Girls)", "Elders", "Warriors", "Hunters"],
         answer: 0,
         category: "Tribes"
     },
     {
         id: "trb3",
         question: "What is the title of the paramount ruler of Ogori?",
-        options: ["Ologori of Ogori", "Ohinoyi", "Olu", "Etsu"],
+        options: ["Ologori of Ogori", "Olu", "Ohinoyi", "Etsu"],
         answer: 0,
         category: "Tribes"
     },
     {
         id: "trb4",
         question: "The Ogori people are believed to have migrated from where?",
-        options: ["Ile-Ife", "Benin Kingdom", "Sokoto Caliphate", "Kwararafa"],
+        options: ["Ile-Ife", "Kwararafa", "Benin Kingdom", "Sokoto Caliphate"],
         answer: 0,
         category: "Tribes"
     },
@@ -44,29 +44,29 @@ export const KOGI_TRIBES_DATA = [
     {
         id: "trb6",
         question: "The Nupe people in Lokoja and Bassa are famous for which craft?",
-        options: ["Boat building and Fishing", "Iron smelting", "Gold mining", "Cattle rearing"],
-        answer: 0,
+        options: ["Gold mining", "Iron smelting", "Boat building and Fishing", "Cattle rearing"],
+        answer: 2,
         category: "Tribes"
     },
     {
         id: "trb7",
         question: "Which Nupe subgroup has its traditional headquarters in Budon?",
-        options: ["Kakanda", "Kupa", "Bassa Nge", "Oworo"],
-        answer: 0,
+        options: ["Oworo", "Kupa", "Kakanda", "Bassa Nge"],
+        answer: 2,
         category: "Tribes"
     },
     {
         id: "trb8",
         question: "The Kupa people are primarily found in which Local Government Area?",
-        options: ["Lokoja", "Okene", "Idah", "Kabba"],
+        options: ["Lokoja", "Idah", "Okene", "Kabba"],
         answer: 0,
         category: "Tribes"
     },
     {
         id: "trb9",
         question: "The 'Bassa Nge' people are historically related to which major ethnic group?",
-        options: ["Nupe", "Igala", "Ebira", "Yoruba"],
-        answer: 0,
+        options: ["Ebira", "Yoruba", "Igala", "Nupe"],
+        answer: 3,
         category: "Tribes"
     },
     {
@@ -83,36 +83,36 @@ export const KOGI_TRIBES_DATA = [
     {
         id: "trb11",
         question: "The Oworo people are indigenous to which area of Kogi State?",
-        options: ["Lokoja (Confluence Area)", "Okene", "Ankpa", "Yagba"],
-        answer: 0,
+        options: ["Ankpa", "Lokoja (Confluence Area)", "Okene", "Yagba"],
+        answer: 1,
         category: "Tribes"
     },
     {
         id: "trb12",
         question: "Which major triennial festival is celebrated by the Oworo people?",
-        options: ["Oluwo Festival", "Ovia Osese", "Ekuechi", "Italo"],
-        answer: 0,
+        options: ["Ekuechi", "Ovia Osese", "Italo", "Oluwo Festival"],
+        answer: 3,
         category: "Tribes"
     },
     {
         id: "trb13",
         question: "The 'Oluwo' festival involves rituals at a sacred tunnel in which town?",
-        options: ["Agbaja", "Jakura", "Ogbabo", "Tajimi"],
+        options: ["Agbaja", "Ogbabo", "Tajimi", "Jakura"],
         answer: 0,
         category: "Tribes"
     },
     {
         id: "trb14",
         question: "Who is the paramount ruler of the Oworo people?",
-        options: ["Olu of Oworo", "Obaro", "Attah", "Ohinoyi"],
-        answer: 0,
+        options: ["Ohinoyi", "Olu of Oworo", "Obaro", "Attah"],
+        answer: 1,
         category: "Tribes"
     },
     {
         id: "trb15",
         question: "Oworo dialect is closely related to which other language group?",
-        options: ["Okun (Yoruba)", "Igala", "Ebira", "Hausa"],
-        answer: 0,
+        options: ["Ebira", "Hausa", "Igala", "Okun (Yoruba)"],
+        answer: 3,
         category: "Tribes"
     },
 
@@ -122,36 +122,36 @@ export const KOGI_TRIBES_DATA = [
     {
         id: "trb16",
         question: "Indigenous Igbo communities in Kogi State are mostly found in which LGAs?",
-        options: ["Ibaji and Igalamela/Odolu", "Okene and Adavi", "Kabba and Ijumu", "Lokoja and Koton-Karfe"],
-        answer: 0,
+        options: ["Okene and Adavi", "Ibaji and Igalamela/Odolu", "Kabba and Ijumu", "Lokoja and Koton-Karfe"],
+        answer: 1,
         category: "Tribes"
     },
     {
         id: "trb17",
         question: "Which of these is a known indigenous Igbo community in Kogi State?",
-        options: ["Akpanya", "Okene", "Isanlu", "Gegu"],
-        answer: 0,
+        options: ["Isanlu", "Gegu", "Akpanya", "Okene"],
+        answer: 2,
         category: "Tribes"
     },
     {
         id: "trb18",
         question: "The Idoma people in Kogi State share a historical connection with which kingdom?",
-        options: ["Kwararafa", "Benin", "Oyo", "Sokoto"],
-        answer: 0,
+        options: ["Benin", "Sokoto", "Oyo", "Kwararafa"],
+        answer: 3,
         category: "Tribes"
     },
     {
         id: "trb19",
         question: "Some Idoma groups in Kogi trace their ancestry to 'Apa'. Where was Apa located?",
-        options: ["Ancient Kwararafa (Taraba)", "Lagos", "Kano", "Ibadan"],
-        answer: 0,
+        options: ["Kano", "Ibadan", "Ancient Kwararafa (Taraba)", "Lagos"],
+        answer: 2,
         category: "Tribes"
     },
     {
         id: "trb20",
         question: "Indigenous Igbo people in Kogi State are often bilingual, speaking Igbo and...?",
-        options: ["Igala", "Nupe", "Ebira", "Tiv"],
-        answer: 0,
+        options: ["Tiv", "Nupe", "Ebira", "Igala"],
+        answer: 3,
         category: "Tribes"
     }
 ];

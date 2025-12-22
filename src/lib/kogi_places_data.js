@@ -5,43 +5,43 @@ export const KOGI_PLACES_DATA = [
     {
         id: "lg1",
         question: "How many Local Government Areas (LGAs) are in Kogi State?",
-        options: ["21", "25", "18", "30"],
-        answer: 0,
+        options: ["30", "18", "21", "25"],
+        answer: 2,
         category: "Places"
     },
     {
         id: "lg2",
         question: "What is the capital city of Kogi State?",
-        options: ["Lokoja", "Okene", "Idah", "Kabba"],
-        answer: 0,
+        options: ["Idah", "Lokoja", "Okene", "Kabba"],
+        answer: 1,
         category: "Places"
     },
     {
         id: "lg3",
         question: "What is the headquarters of Adavi LGA?",
-        options: ["Ogaminana", "Obangede", "Okene", "Ihima"],
-        answer: 0,
+        options: ["Okene", "Ogaminana", "Ihima", "Obangede"],
+        answer: 1,
         category: "Places"
     },
     {
         id: "lg4",
         question: "Which LGA has its headquarters in Oguma?",
-        options: ["Bassa", "Dekina", "Omala", "Ofu"],
-        answer: 0,
+        options: ["Dekina", "Bassa", "Omala", "Ofu"],
+        answer: 1,
         category: "Places"
     },
     {
         id: "lg5",
         question: "What is the headquarters of Ijumu LGA?",
-        options: ["Iyara", "Iyamoye", "Ogidi", "Ekinrin-Adde"],
-        answer: 0,
+        options: ["Ekinrin-Adde", "Ogidi", "Iyamoye", "Iyara"],
+        answer: 3,
         category: "Places"
     },
     {
         id: "lg6",
         question: "Odo-Ere is the headquarters of which LGA?",
-        options: ["Yagba West", "Yagba East", "Mopa-Muro", "Kabba-Bunu"],
-        answer: 0,
+        options: ["Mopa-Muro", "Kabba-Bunu", "Yagba West", "Yagba East"],
+        answer: 2,
         category: "Places"
     },
     {
@@ -54,57 +54,57 @@ export const KOGI_PLACES_DATA = [
     {
         id: "lg8",
         question: "Where is the headquarters of Ibaji LGA located?",
-        options: ["Onyedega", "Ejule", "Ugwolawo", "Ajaka"],
-        answer: 0,
+        options: ["Ejule", "Onyedega", "Ugwolawo", "Ajaka"],
+        answer: 1,
         category: "Places"
     },
     {
         id: "lg9",
         question: "Which LGA headquarters is located at Isanlu?",
-        options: ["Yagba East", "Yagba West", "Ijumu", "Mopa-Muro"],
+        options: ["Yagba East", "Yagba West", "Mopa-Muro", "Ijumu"],
         answer: 0,
         category: "Places"
     },
     {
         id: "lg10",
         question: "Koton-Karfe is the headquarters of which LGA?",
-        options: ["Kogi LGA", "Lokoja LGA", "Bassa LGA", "Ajaokuta LGA"],
+        options: ["Kogi LGA", "Ajaokuta LGA", "Lokoja LGA", "Bassa LGA"],
         answer: 0,
         category: "Places"
     },
     {
         id: "lg11",
         question: "What is the headquarters of Igalamela-Odolu LGA?",
-        options: ["Ajaka", "Odolu", "Akpanya", "Oforachi"],
-        answer: 0,
+        options: ["Oforachi", "Ajaka", "Akpanya", "Odolu"],
+        answer: 1,
         category: "Places"
     },
     {
         id: "lg12",
         question: "Abejukolo is the headquarters of which LGA?",
-        options: ["Omala", "Ankpa", "Olamaboro", "Ofu"],
+        options: ["Omala", "Ankpa", "Ofu", "Olamaboro"],
         answer: 0,
         category: "Places"
     },
     {
         id: "lg13",
         question: "What is the headquarters of Mopa-Muro LGA?",
-        options: ["Mopa", "Amuro", "Takete", "Effo"],
-        answer: 0,
+        options: ["Takete", "Amuro", "Mopa", "Effo"],
+        answer: 2,
         category: "Places"
     },
     {
         id: "lg14",
         question: "Okpo is the headquarters of which LGA?",
-        options: ["Olamaboro", "Ankpa", "Igalamela", "Ibaji"],
-        answer: 0,
+        options: ["Igalamela", "Ibaji", "Ankpa", "Olamaboro"],
+        answer: 3,
         category: "Places"
     },
     {
         id: "lg15",
         question: "The headquarters of Ogori-Magongo LGA is...?",
-        options: ["Akpafa", "Ogori", "Magongo", "Obinoyin"],
-        answer: 0,
+        options: ["Ogori", "Obinoyin", "Magongo", "Akpafa"],
+        answer: 3,
         category: "Places"
     },
 
@@ -114,126 +114,126 @@ export const KOGI_PLACES_DATA = [
     {
         id: "tr1",
         question: "What is the title of the Paramount Ruler of the Igala Kingdom?",
-        options: ["Attah Igala", "Ejeh Igala", "Onu Igala", "Oga Igala"],
-        answer: 0,
+        options: ["Oga Igala", "Attah Igala", "Ejeh Igala", "Onu Igala"],
+        answer: 1,
         category: "People"
     },
     {
         id: "tr2",
         question: "What is the title of the Paramount Ruler of Ebiraland?",
-        options: ["Ohinoyi of Ebiraland", "Ohi of Ebira", "Attah Ebira", "Otaru of Ebira"],
-        answer: 0,
+        options: ["Ohi of Ebira", "Ohinoyi of Ebiraland", "Otaru of Ebira", "Attah Ebira"],
+        answer: 1,
         category: "People"
     },
     {
         id: "tr3",
         question: "Who is the Chairman of the Okun Traditional Council?",
-        options: ["Obaro of Kabba", "Olu of Mopa", "Olujumu of Ijumu", "Agbana of Isanlu"],
-        answer: 0,
+        options: ["Agbana of Isanlu", "Obaro of Kabba", "Olujumu of Ijumu", "Olu of Mopa"],
+        answer: 1,
         category: "People"
     },
     {
         id: "tr4",
         question: "What is the traditional title of the ruler of Lokoja?",
-        options: ["Maigari of Lokoja", "Etsu of Lokoja", "Sarkin Lokoja", "Obaro of Lokoja"],
-        answer: 0,
+        options: ["Sarkin Lokoja", "Obaro of Lokoja", "Etsu of Lokoja", "Maigari of Lokoja"],
+        answer: 3,
         category: "People"
     },
     {
         id: "tr5",
         question: "What is the title of the traditional ruler of Ankpa?",
-        options: ["Ejeh of Ankpa", "Onu Ankpa", "Attah Ankpa", "Ohi of Ankpa"],
-        answer: 0,
+        options: ["Ohi of Ankpa", "Ejeh of Ankpa", "Onu Ankpa", "Attah Ankpa"],
+        answer: 1,
         category: "People"
     },
     {
         id: "tr6",
         question: "The 'Ologidi' is the traditional ruler of which town?",
-        options: ["Ogidi-Ijumu", "Ogori", "Ogaminana", "Oguma"],
+        options: ["Ogidi-Ijumu", "Ogaminana", "Oguma", "Ogori"],
         answer: 0,
         category: "People"
     },
     {
         id: "tr7",
         question: "What is the title of the ruler of Mopa?",
-        options: ["Olu of Mopa", "Elulu of Mopa", "Obaro of Mopa", "Oba of Mopa"],
-        answer: 1,
+        options: ["Oba of Mopa", "Obaro of Mopa", "Elulu of Mopa", "Olu of Mopa"],
+        answer: 2,
         category: "People"
     },
     {
         id: "tr8",
         question: "The 'Ohimege Igu' rules over which people?",
-        options: ["Koton-Karfe (Egbura Koto)", "Bassa Nge", "Kakanda", "Nupe"],
-        answer: 0,
+        options: ["Nupe", "Koton-Karfe (Egbura Koto)", "Kakanda", "Bassa Nge"],
+        answer: 1,
         category: "People"
     },
     {
         id: "tr9",
         question: "What is the title of the traditional ruler of Isanlu?",
-        options: ["Agbana of Isanlu", "Elejuku of Isanlu", "Olu of Isanlu", "Oba of Isanlu"],
-        answer: 0,
+        options: ["Olu of Isanlu", "Elejuku of Isanlu", "Oba of Isanlu", "Agbana of Isanlu"],
+        answer: 3,
         category: "People"
     },
     {
         id: "tr10",
         question: "The 'Otaru' is a common title in which area?",
-        options: ["Ogori/Magongo & Auchi ties", "Igala land", "Okun land", "Bassa"],
-        answer: 0,
+        options: ["Bassa", "Okun land", "Ogori/Magongo & Auchi ties", "Igala land"],
+        answer: 2,
         category: "People"
     },
     {
         id: "tr11",
         question: "Who is the 'Olu of Oworo'?",
-        options: ["Ruler of Oworo land (Lokoja area)", "Ruler of Owo", "Ruler of Owu", "Ruler of Obajana"],
+        options: ["Ruler of Oworo land (Lokoja area)", "Ruler of Owu", "Ruler of Owo", "Ruler of Obajana"],
         answer: 0,
         category: "People"
     },
     {
         id: "tr12",
         question: "The 'Achadu' is traditionally known as what in the Igala Kingdom?",
-        options: ["Prime Minister", "Chief Warrior", "Chief Priest", "Treasurer"],
+        options: ["Prime Minister", "Chief Priest", "Chief Warrior", "Treasurer"],
         answer: 0,
         category: "People"
     },
     {
         id: "tr13",
         question: "Which traditional ruler was recently deposed in Koton-Karfe (2024)?",
-        options: ["Ohimege-Igu", "Maigari", "Obaro", "Ejeh"],
-        answer: 0,
+        options: ["Ejeh", "Obaro", "Ohimege-Igu", "Maigari"],
+        answer: 2,
         category: "People"
     },
     {
         id: "tr14",
         question: "What is the title of the ruler of Ogori?",
-        options: ["Ologori of Ogori", "Otaru of Ogori", "Olu of Ogori", "Oba of Ogori"],
-        answer: 0,
+        options: ["Oba of Ogori", "Ologori of Ogori", "Olu of Ogori", "Otaru of Ogori"],
+        answer: 1,
         category: "People"
     },
     {
         id: "tr15",
         question: "The 'Olujumu' is the paramount ruler of...?",
-        options: ["Ijumu Kingdom", "Jimeta", "Jalingo", "Ajaka"],
+        options: ["Ijumu Kingdom", "Jalingo", "Ajaka", "Jimeta"],
         answer: 0,
         category: "People"
     },
     {
         id: "tr16",
         question: "Who is the ruler of Bunuland?",
-        options: ["Olubunu of Bunu", "Obaro of Bunu", "Olu of Kabba", "Oba of Bunu"],
-        answer: 0,
+        options: ["Obaro of Bunu", "Olubunu of Bunu", "Olu of Kabba", "Oba of Bunu"],
+        answer: 1,
         category: "People"
     },
     {
         id: "tr17",
         question: "What is the title of the ruler of Egbe in Yagba West?",
-        options: ["Elegbe of Egbe", "Oba of Egbe", "Olu of Egbe", "Baale of Egbe"],
-        answer: 0,
+        options: ["Olu of Egbe", "Baale of Egbe", "Elegbe of Egbe", "Oba of Egbe"],
+        answer: 2,
         category: "People"
     },
     {
         id: "tr18",
         question: "The 'Aguma of Bassa' rules over which people?",
-        options: ["Bassa Komo", "Bassa Nge", "Igala", "Ebira"],
+        options: ["Bassa Komo", "Igala", "Bassa Nge", "Ebira"],
         answer: 0,
         category: "People"
     },
@@ -244,22 +244,22 @@ export const KOGI_PLACES_DATA = [
     {
         id: "tc1",
         question: "Which town houses the Prince Abubakar Audu University (PAAU)?",
-        options: ["Anyigba", "Lokoja", "Idah", "Ankpa"],
-        answer: 0,
+        options: ["Ankpa", "Idah", "Lokoja", "Anyigba"],
+        answer: 3,
         category: "Places"
     },
     {
         id: "tc2",
         question: "Where is the Federal Polytechnic Idah located?",
-        options: ["Idah", "Anyigba", "Lokoja", "Okene"],
-        answer: 0,
+        options: ["Anyigba", "Okene", "Idah", "Lokoja"],
+        answer: 2,
         category: "Places"
     },
     {
         id: "tc3",
         question: "Which town is known for the Obajana Cement Factory?",
-        options: ["Obajana", "Lokoja", "Kabba", "Itakpe"],
-        answer: 0,
+        options: ["Kabba", "Obajana", "Lokoja", "Itakpe"],
+        answer: 1,
         category: "Places"
     },
     {
@@ -272,99 +272,99 @@ export const KOGI_PLACES_DATA = [
     {
         id: "tc5",
         question: "Which town is famous for the 'Inikpi Statue'?",
-        options: ["Idah", "Anyigba", "Ankpa", "Lokoja"],
-        answer: 0,
+        options: ["Lokoja", "Ankpa", "Idah", "Anyigba"],
+        answer: 2,
         category: "Places"
     },
     {
         id: "tc6",
         question: "Ajaokuta is globally known for what industrial complex?",
-        options: ["Ajaokuta Steel Company", "Dangote Refinery", "Peugeot Assembly", "Textile Mill"],
+        options: ["Ajaokuta Steel Company", "Dangote Refinery", "Textile Mill", "Peugeot Assembly"],
         answer: 0,
         category: "Places"
     },
     {
         id: "tc7",
         question: "Itakpe is famous for the mining of which mineral?",
-        options: ["Iron Ore", "Coal", "Gold", "Limestone"],
-        answer: 0,
+        options: ["Limestone", "Coal", "Iron Ore", "Gold"],
+        answer: 2,
         category: "Places"
     },
     {
         id: "tc8",
         question: "Which town is known for the annual Ogani Festival?",
-        options: ["Ankpa", "Idah", "Okene", "Kabba"],
-        answer: 0,
+        options: ["Idah", "Kabba", "Ankpa", "Okene"],
+        answer: 2,
         category: "Places"
     },
     {
         id: "tc9",
         question: "Where is the Confluence University of Science and Technology (CUSTECH)?",
-        options: ["Osara", "Lokoja", "Kabba", "Egbe"],
+        options: ["Osara", "Egbe", "Lokoja", "Kabba"],
         answer: 0,
         category: "Places"
     },
     {
         id: "tc10",
         question: "Ogaminana is a major town in which ethnic area?",
-        options: ["Ebira land", "Igala land", "Okun land", "Nupe land"],
-        answer: 0,
+        options: ["Okun land", "Igala land", "Ebira land", "Nupe land"],
+        answer: 2,
         category: "Places"
     },
     {
         id: "tc11",
         question: "Which town is known as the 'Jerusalem of Okun land' due to the Sacred Heart Church?",
-        options: ["Kabba", "Isanlu", "Egbe", "Mopa"],
+        options: ["Kabba", "Isanlu", "Mopa", "Egbe"],
         answer: 0,
         category: "Places"
     },
     {
         id: "tc12",
         question: "Where is the College of Education, Technical located?",
-        options: ["Kabba", "Okene", "Ankpa", "Lokoja"],
-        answer: 0,
+        options: ["Okene", "Lokoja", "Ankpa", "Kabba"],
+        answer: 3,
         category: "Places"
     },
     {
         id: "tc13",
         question: "Where is the Federal College of Education (FCE) located?",
-        options: ["Okene", "Lokoja", "Idah", "Ankpa"],
-        answer: 0,
+        options: ["Idah", "Lokoja", "Ankpa", "Okene"],
+        answer: 3,
         category: "Places"
     },
     {
         id: "tc14",
         question: "Bagana is a town known for its market in which LGA?",
-        options: ["Omala", "Bassa", "Dekina", "Ofu"],
+        options: ["Omala", "Dekina", "Ofu", "Bassa"],
         answer: 0,
         category: "Places"
     },
     {
         id: "tc15",
         question: "Ejule is a busy commercial town in which LGA?",
-        options: ["Ofu", "Idah", "Igalamela", "Ibaji"],
-        answer: 0,
+        options: ["Idah", "Igalamela", "Ofu", "Ibaji"],
+        answer: 2,
         category: "Places"
     },
     {
         id: "tc16",
         question: "Which town hosted the first primary school in Northern Nigeria?",
-        options: ["Lokoja (Holy Trinity)", "Kano", "Zaria", "Kaduna"],
-        answer: 0,
+        options: ["Zaria", "Kano", "Kaduna", "Lokoja (Holy Trinity)"],
+        answer: 3,
         category: "Places"
     },
     {
         id: "tc17",
         question: "Mount Patti is a major tourist attraction in which city?",
-        options: ["Lokoja", "Okene", "Idah", "Kabba"],
-        answer: 0,
+        options: ["Okene", "Kabba", "Lokoja", "Idah"],
+        answer: 2,
         category: "Places"
     },
     {
         id: "tc18",
         question: "Which river flows through Lokoja besides the Niger?",
-        options: ["River Benue", "River Kaduna", "River Gongola", "River Hadejia"],
-        answer: 0,
+        options: ["River Gongola", "River Kaduna", "River Hadejia", "River Benue"],
+        answer: 3,
         category: "Places"
     }
 ];

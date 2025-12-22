@@ -53,85 +53,100 @@ const ReportIssueModal = ({ isOpen, onClose, questionId, questionText, user }) =
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={onClose}
+                className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+            />
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="glass rounded-3xl p-8 w-full max-w-md shadow-2xl relative"
             >
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+                    className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
                 >
                     <X className="w-5 h-5" />
                 </button>
 
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-white">
-                    <AlertCircle className="w-5 h-5 text-yellow-500" />
+                <h2 className="text-2xl font-bold mb-2 flex items-center gap-3 text-white text-glow">
+                    <AlertCircle className="w-6 h-6 text-yellow-500" />
                     Report an Issue
                 </h2>
 
-                <p className="text-slate-400 text-sm mb-6">
-                    Found a mistake in this question? Let us know so we can fix it!
+                <p className="text-slate-400 text-sm mb-8 font-light">
+                    Found a mistake? Help us keep the <span className="text-cyan-400 font-medium">EduVerse</span> accurate for everyone!
                 </p>
 
                 {status === 'success' ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
-                        <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
-                            <Check className="w-6 h-6 text-green-400" />
-                        </div>
-                        <h3 className="text-lg font-bold text-white mb-2">Thank You!</h3>
-                        <p className="text-slate-400">Your report has been submitted for review.</p>
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6"
+                        >
+                            <Check className="w-8 h-8 text-green-400" />
+                        </motion.div>
+                        <h3 className="text-xl font-bold text-white mb-2">Thank You!</h3>
+                        <p className="text-slate-400 font-light">Your report has been received.</p>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">
                                 Suggested Answer (Optional)
                             </label>
                             <input
                                 type="text"
                                 value={suggestion}
                                 onChange={(e) => setSuggestion(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all"
                                 placeholder="What is the correct answer?"
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">
                                 Comments
                             </label>
                             <textarea
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
                                 required
-                                className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors min-h-[100px]"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all min-h-[120px] resize-none"
                                 placeholder="Describe the issue... (e.g. 'The date is wrong', 'Typo in option A')"
                             />
                         </div>
 
                         {status === 'error' && (
-                            <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="text-red-400 text-xs bg-red-500/10 p-4 rounded-xl border border-red-500/20"
+                            >
                                 {errorMessage}
-                            </div>
+                            </motion.div>
                         )}
 
                         {!user && (
-                            <div className="text-yellow-400 text-xs bg-yellow-500/10 p-3 rounded-lg border border-yellow-500/20 mb-4">
-                                Note: You are reporting as an anonymous user. Sign in to track your reports and earn community points!
+                            <div className="text-yellow-400/80 text-[11px] bg-yellow-500/5 p-4 rounded-xl border border-yellow-500/10">
+                                <span className="font-bold">Pro Tip:</span> Sign in to track your reports and earn community reputation!
                             </div>
                         )}
 
                         <button
                             type="submit"
                             disabled={status === 'submitting' || !comment.trim()}
-                            className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:shadow-lg hover:shadow-cyan-500/20 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
                         >
                             {status === 'submitting' ? (
                                 <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <Loader2 className="w-5 h-5 animate-spin" />
                                     Submitting...
                                 </>
                             ) : (
