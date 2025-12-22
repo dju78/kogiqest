@@ -23,12 +23,13 @@ if (supabaseUrl && supabaseAnonKey) {
             signOut: () => Promise.resolve({ error: null })
         },
         from: () => ({
-            insert: () => Promise.resolve({ error: { message: 'Supabase not configured (Missing Keys)' } }),
+            insert: () => Promise.resolve({ error: { message: 'Supabase not configured. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } }),
             select: () => Promise.resolve({ data: [], error: null }),
-            update: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
-            delete: () => Promise.resolve({ error: { message: 'Supabase not configured' } })
+            update: () => Promise.resolve({ error: { message: 'Supabase not configured. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } }),
+            delete: () => Promise.resolve({ error: { message: 'Supabase not configured. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } })
         })
     };
 }
 
+export const isConfigured = !!(supabaseUrl && supabaseAnonKey);
 export const supabase = client;

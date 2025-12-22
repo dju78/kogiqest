@@ -16,6 +16,8 @@ const GameEngine = ({ onExit, user }) => {
     const [feedback, setFeedback] = useState(null); // 'correct' or 'incorrect'
     const [levelCorrectCount, setLevelCorrectCount] = useState(0); // Track correct answers for current level
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [answersHistory, setAnswersHistory] = useState({}); // Record { selectedOption, feedback } per questionIndex
+    const [stagedOption, setStagedOption] = useState(null); // Option selected but not yet confirmed
 
     const currentLevel = GAME_LEVELS[currentLevelIndex];
     const currentQuestion = currentLevel.questions[currentQuestionIndex];
@@ -65,8 +67,14 @@ const GameEngine = ({ onExit, user }) => {
     }, [gameState, score, highScore, user, currentLevelIndex]);
 
     const handleOptionSelect = (optionIndex) => {
-        if (selectedOption !== null) return; // Prevent multiple clicks
+        if (selectedOption !== null) return; // Already answered
+        setStagedOption(optionIndex);
+    };
 
+    const handleConfirmSubmission = () => {
+        if (stagedOption === null || selectedOption !== null) return;
+
+        const optionIndex = stagedOption;
         setSelectedOption(optionIndex);
         const isCorrect = optionIndex === currentQuestion.answer;
 
@@ -78,6 +86,15 @@ const GameEngine = ({ onExit, user }) => {
             setFeedback('incorrect');
         }
 
+        // Record in history
+        setAnswersHistory(prev => ({
+            ...prev,
+            [currentQuestionIndex]: {
+                selectedOption: optionIndex,
+                feedback: isCorrect ? 'correct' : 'incorrect'
+            }
+        }));
+
         // Auto advance after 1.5s
         setTimeout(() => {
             handleNext();
@@ -85,14 +102,25 @@ const GameEngine = ({ onExit, user }) => {
     };
 
     const handleNext = () => {
-        setSelectedOption(null);
-        setFeedback(null);
-
-        // Check if more questions in level
+        setStagedOption(null);
+        // Advance to next or finish
         if (currentQuestionIndex < currentLevel.questions.length - 1) {
-            setCurrentQuestionIndex(i => i + 1);
+            const nextIdx = currentQuestionIndex + 1;
+            setCurrentQuestionIndex(nextIdx);
+
+            // Restore from history if it exists
+            const history = answersHistory[nextIdx];
+            if (history) {
+                setSelectedOption(history.selectedOption);
+                setFeedback(history.feedback);
+            } else {
+                setSelectedOption(null);
+                setFeedback(null);
+            }
         } else {
             // Level Complete
+            setSelectedOption(null);
+            setFeedback(null);
             if (currentLevelIndex < GAME_LEVELS.length - 1) {
                 setGameState('levelComplete');
             } else {
@@ -101,10 +129,26 @@ const GameEngine = ({ onExit, user }) => {
         }
     };
 
+    const handleBack = () => {
+        setStagedOption(null);
+        if (currentQuestionIndex > 0) {
+            const prevIdx = currentQuestionIndex - 1;
+            setCurrentQuestionIndex(prevIdx);
+
+            // Restore from history
+            const history = answersHistory[prevIdx];
+            if (history) {
+                setSelectedOption(history.selectedOption);
+                setFeedback(history.feedback);
+            }
+        }
+    };
+
     const nextLevel = () => {
         setCurrentLevelIndex(i => i + 1);
         setCurrentQuestionIndex(0);
         setLevelCorrectCount(0); // Reset for next level
+        setAnswersHistory({}); // Reset history for new level
         setGameState('playing');
     };
 
@@ -113,6 +157,7 @@ const GameEngine = ({ onExit, user }) => {
         setCurrentQuestionIndex(0);
         setScore(0);
         setLevelCorrectCount(0);
+        setAnswersHistory({});
         setGameState('playing');
     };
 
@@ -157,8 +202,18 @@ const GameEngine = ({ onExit, user }) => {
                                     ${feedback === 'correct' ? 'animate-success' : ''}
                                 `}
                             >
-                                <div className="mb-4 text-cyan-300 font-medium tracking-wide">
-                                    {currentLevel.title} &bull; Q{currentQuestionIndex + 1}/{currentLevel.questions.length}
+                                <div className="mb-4 text-cyan-300 font-medium tracking-wide flex items-center gap-4">
+                                    <button
+                                        onClick={handleBack}
+                                        disabled={currentQuestionIndex === 0}
+                                        className="p-1.5 rounded-lg glass border border-white/10 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                        title="Previous Question"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <span>
+                                        {currentLevel.title} &bull; Q{currentQuestionIndex + 1}/{currentLevel.questions.length}
+                                    </span>
                                 </div>
 
                                 <h2 className="text-2xl md:text-4xl font-bold mb-12 leading-tight">
@@ -173,7 +228,9 @@ const GameEngine = ({ onExit, user }) => {
                                             disabled={selectedOption !== null}
                                             className={`w-full p-6 rounded-xl border-2 text-left text-lg font-medium transition-all duration-200 
                             ${selectedOption === null
-                                                    ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-cyan-400/50'
+                                                    ? stagedOption === idx
+                                                        ? 'bg-cyan-500/10 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.2)]'
+                                                        : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-cyan-400/30'
                                                     : idx === currentQuestion.answer && selectedOption !== null
                                                         ? 'bg-green-500/20 border-green-500 text-green-100'
                                                         : selectedOption === idx
@@ -184,6 +241,13 @@ const GameEngine = ({ onExit, user }) => {
                                         >
                                             <div className="flex justify-between items-center">
                                                 <span>{option}</span>
+                                                {selectedOption === null && stagedOption === idx && (
+                                                    <motion.div
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        className="w-3 h-3 bg-cyan-400 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.8)]"
+                                                    />
+                                                )}
                                                 {selectedOption !== null && idx === currentQuestion.answer && (
                                                     <CheckCircle className="w-6 h-6 text-green-400" />
                                                 )}
@@ -193,6 +257,22 @@ const GameEngine = ({ onExit, user }) => {
                                             </div>
                                         </button>
                                     ))}
+                                </div>
+
+                                <div className="mt-8 flex justify-center h-16">
+                                    <AnimatePresence>
+                                        {stagedOption !== null && selectedOption === null && (
+                                            <motion.button
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 10 }}
+                                                onClick={handleConfirmSubmission}
+                                                className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl font-bold text-white shadow-xl shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:scale-105 transition-all flex items-center gap-3 border border-white/10"
+                                            >
+                                                Confirm Selection <CheckCircle className="w-5 h-5" />
+                                            </motion.button>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                                 <div className="mt-6 flex justify-end">
                                     <button

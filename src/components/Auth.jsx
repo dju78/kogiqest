@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, isConfigured } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, LogIn, UserPlus, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 
@@ -92,13 +92,36 @@ const Auth = ({ onAuthSuccess, onBack }) => {
                             </p>
                         </div>
 
+                        {!isConfigured && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl mb-6 text-amber-200"
+                            >
+                                <div className="flex items-center gap-2 mb-2 font-bold text-amber-400">
+                                    <AlertCircle className="w-5 h-5" />
+                                    Setup Required
+                                </div>
+                                <p className="text-xs leading-relaxed space-y-1">
+                                    Supabase is not configured. Features like Leaderboards and Accounts are currently disabled.
+                                    <br /><br />
+                                    <strong>How to fix:</strong>
+                                    <ul className="list-disc ml-4 mt-1 space-y-1">
+                                        <li>Create a <code>.env</code> file in your project root.</li>
+                                        <li>Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>.</li>
+                                        <li>Restart your development server.</li>
+                                    </ul>
+                                </p>
+                            </motion.div>
+                        )}
+
                         {error && (
                             <motion.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className={`flex items-start gap-3 p-4 rounded-xl mb-6 border ${error.includes('Success')
-                                        ? 'bg-green-500/10 border-green-500/20 text-green-400'
-                                        : 'bg-red-500/10 border-red-500/20 text-red-400'
+                                    ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                                    : 'bg-red-500/10 border-red-500/20 text-red-400'
                                     }`}
                             >
                                 <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
