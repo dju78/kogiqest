@@ -6,3 +6,4 @@ dist
 .idea
 .vscode
 coverage
+node_modules/
