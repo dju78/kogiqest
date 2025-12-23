@@ -41,9 +41,10 @@ CREATE TABLE IF NOT EXISTS public.${TABLE_NAME} (
 -- 2. Enable Row Level Security (RLS)
 ALTER TABLE public.${TABLE_NAME} ENABLE ROW LEVEL SECURITY;
 
--- 3. Create Policy (Allow read access to everyone)
-CREATE POLICY "Enable read access for all users" 
+-- 3. Create Policy (Allow read access to authenticated users only)
+CREATE POLICY "Authenticated can read questions" 
 ON public.${TABLE_NAME} FOR SELECT 
+TO authenticated 
 USING (true);
 
 -- 4. Create Policy (Service Role only for inserts/updates - optional safety)
