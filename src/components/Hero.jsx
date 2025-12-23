@@ -1,10 +1,28 @@
 import React from 'react';
 import { Play, Star, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import Leaderboard from './Leaderboard';
 
-const Hero = ({ onStart }) => {
+const Hero = () => {
     const [isLeaderboardOpen, setIsLeaderboardOpen] = React.useState(false);
+    const [session, setSession] = React.useState(null);
+    const navigate = useNavigate();
+
+    React.useEffect(() => {
+        supabase.auth.getSession().then(({ data }) => setSession(data.session));
+        const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
+        return () => sub.subscription.unsubscribe();
+    }, []);
+
+    const handleStart = () => {
+        if (!session) {
+            navigate("/auth");
+            return;
+        }
+        navigate("/quiz");
+    };
 
     return (
         <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-20">
@@ -28,7 +46,7 @@ const Hero = ({ onStart }) => {
                 <motion.button
                     whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(34, 211, 238, 0.4)" }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={onStart}
+                    onClick={handleStart}
                     className="group relative inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-xl font-bold transition-all duration-300 shadow-xl"
                 >
                     <Play className="w-6 h-6 fill-current" />

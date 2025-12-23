@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, CheckCircle, XCircle, ArrowRight, RotateCcw, Trophy, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, XCircle, ArrowRight, RotateCcw, Trophy, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { GAME_LEVELS } from '../lib/constants';
+import Leaderboard from './Leaderboard';
 import Bubbles from './Bubbles';
 import ReportIssueModal from './ReportIssueModal';
 
@@ -18,6 +19,8 @@ const GameEngine = ({ onExit, user }) => {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [answersHistory, setAnswersHistory] = useState({}); // Record { selectedOption, feedback } per questionIndex
     const [stagedOption, setStagedOption] = useState(null); // Option selected but not yet confirmed
+    const [hasAnswered, setHasAnswered] = useState(false);
+    const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
     const currentLevel = GAME_LEVELS[currentLevelIndex];
     const currentQuestion = currentLevel.questions[currentQuestionIndex];
@@ -85,6 +88,7 @@ const GameEngine = ({ onExit, user }) => {
         } else {
             setFeedback('incorrect');
         }
+        setHasAnswered(true);
 
         // Record in history
         setAnswersHistory(prev => ({
@@ -97,11 +101,11 @@ const GameEngine = ({ onExit, user }) => {
 
         // Auto advance after 1.5s
         setTimeout(() => {
-            handleNext();
+            handleNextQuestion();
         }, 1500);
     };
 
-    const handleNext = () => {
+    const handleNextQuestion = () => {
         setStagedOption(null);
         // Advance to next or finish
         if (currentQuestionIndex < currentLevel.questions.length - 1) {
@@ -113,9 +117,11 @@ const GameEngine = ({ onExit, user }) => {
             if (history) {
                 setSelectedOption(history.selectedOption);
                 setFeedback(history.feedback);
+                setHasAnswered(true);
             } else {
                 setSelectedOption(null);
                 setFeedback(null);
+                setHasAnswered(false);
             }
         } else {
             // Level Complete
@@ -129,7 +135,7 @@ const GameEngine = ({ onExit, user }) => {
         }
     };
 
-    const handleBack = () => {
+    const handlePrevQuestion = () => {
         setStagedOption(null);
         if (currentQuestionIndex > 0) {
             const prevIdx = currentQuestionIndex - 1;
@@ -140,6 +146,10 @@ const GameEngine = ({ onExit, user }) => {
             if (history) {
                 setSelectedOption(history.selectedOption);
                 setFeedback(history.feedback);
+                setHasAnswered(true);
+            } else {
+                // If moving back to an unanswered question (shouldn't happen with current logic but for safety)
+                setHasAnswered(false);
             }
         }
     };
@@ -158,6 +168,7 @@ const GameEngine = ({ onExit, user }) => {
         setScore(0);
         setLevelCorrectCount(0);
         setAnswersHistory({});
+        setHasAnswered(false);
         setGameState('playing');
     };
 
@@ -203,15 +214,26 @@ const GameEngine = ({ onExit, user }) => {
                                 `}
                             >
                                 <div className="mb-4 text-cyan-300 font-medium tracking-wide flex items-center gap-4">
-                                    <button
-                                        onClick={handleBack}
-                                        disabled={currentQuestionIndex === 0}
-                                        className="p-1.5 rounded-lg glass border border-white/10 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                        title="Previous Question"
-                                    >
-                                        <ChevronLeft className="w-4 h-4" />
-                                    </button>
-                                    <span>
+                                    <div className="flex items-center glass border border-white/10 rounded-lg p-1">
+                                        <button
+                                            onClick={handlePrevQuestion}
+                                            disabled={currentQuestionIndex === 0}
+                                            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-20 disabled:cursor-not-allowed transition-all text-xs font-bold uppercase tracking-wider"
+                                            title="Previous Question"
+                                        >
+                                            Back
+                                        </button>
+                                        <div className="w-[1px] h-4 bg-white/10 mx-1" />
+                                        <button
+                                            onClick={handleNextQuestion}
+                                            disabled={!hasAnswered}
+                                            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-20 disabled:cursor-not-allowed transition-all text-xs font-bold uppercase tracking-wider"
+                                            title="Next Question"
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                    <span className="text-sm">
                                         {currentLevel.title} &bull; Q{currentQuestionIndex + 1}/{currentLevel.questions.length}
                                     </span>
                                 </div>
@@ -356,6 +378,16 @@ const GameEngine = ({ onExit, user }) => {
                                         Return to Menu
                                     </button>
                                 </div>
+
+                                <div className="mt-8 pt-8 border-t border-white/10 w-full max-w-sm mx-auto">
+                                    <button
+                                        onClick={() => setIsLeaderboardOpen(true)}
+                                        className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors mx-auto"
+                                    >
+                                        <Trophy className="w-5 h-5 text-yellow-500" />
+                                        <span className="font-medium">View Global Leaderboards</span>
+                                    </button>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -416,6 +448,11 @@ const GameEngine = ({ onExit, user }) => {
                 onClose={() => setIsReportModalOpen(false)}
                 questionId={currentQuestion ? currentQuestion.id : 'unknown'}
                 questionText={currentQuestion ? currentQuestion.question : ''}
+            />
+
+            <Leaderboard
+                isOpen={isLeaderboardOpen}
+                onClose={() => setIsLeaderboardOpen(false)}
             />
         </div>
     );
