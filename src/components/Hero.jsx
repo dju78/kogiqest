@@ -5,19 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import Leaderboard from './Leaderboard';
 
-const Hero = () => {
+const Hero = ({ user }) => {
     const [isLeaderboardOpen, setIsLeaderboardOpen] = React.useState(false);
-    const [session, setSession] = React.useState(null);
     const navigate = useNavigate();
 
-    React.useEffect(() => {
-        supabase.auth.getSession().then(({ data }) => setSession(data.session));
-        const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
-        return () => sub.subscription.unsubscribe();
-    }, []);
-
     const handleStart = () => {
-        if (!session) {
+        if (!user) {
             navigate("/auth");
             return;
         }

@@ -58,7 +58,7 @@ function App() {
             onLogoutClick={handleLogout}
         >
             <Routes>
-                <Route path="/" element={<Hero onStart={() => navigate('/quiz')} />} />
+                <Route path="/" element={<Hero user={user} onStart={() => navigate('/quiz')} />} />
                 <Route
                     path="/auth"
                     element={
