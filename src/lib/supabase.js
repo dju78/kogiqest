@@ -1,11 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+
+// Validate that URL is a proper HTTP(S) URL
+const isValidUrl = supabaseUrl && (supabaseUrl.startsWith('http://') || supabaseUrl.startsWith('https://'));
 
 let client;
 
-if (supabaseUrl && supabaseAnonKey) {
+if (isValidUrl && supabaseAnonKey) {
     client = createClient(supabaseUrl, supabaseAnonKey);
 } else {
     console.warn('Supabase keys missing. Authentication and reporting features will be disabled.');
@@ -31,5 +34,5 @@ if (supabaseUrl && supabaseAnonKey) {
     };
 }
 
-export const isConfigured = !!(supabaseUrl && supabaseAnonKey);
+export const isConfigured = !!(isValidUrl && supabaseAnonKey);
 export const supabase = client;
