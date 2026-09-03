@@ -245,3 +245,107 @@ describe('accessibility', () => {
         expect(card.getAttribute('aria-current')).toBe('true');
     });
 });
+
+// ---------------------------------------------------------------------------
+// Regression test for a reporting error: a manual exploratory run answered
+// every question by blindly clicking the first rendered option, without
+// checking correctness, and reached "7 correct" out of 20. That number was
+// then reported as if it proved a full correct playthrough, which it never
+// attempted. It didn't: "Tribes of the Confluence" has its correct answer at
+// index 0 for exactly 7 of its 20 questions (GAME_LEVELS[6].questions,
+// checked directly), so blindly clicking index 0 scoring 7/20 is the
+// deterministic, correct outcome of that script — not a scoring defect.
+//
+// This test drives the real UI and deliberately selects the CORRECT option
+// for every question (matched against the real data by question text), to
+// verify the claims that actually matter: 100 points per correct answer, 0
+// for wrong ones, the completion screen reporting the right correct count,
+// and no double-counting on replay.
+// ---------------------------------------------------------------------------
+describe('regression: scoring is accurate for genuinely correct answers', () => {
+    const TITLE = GAME_LEVELS.find((t) => t.title === 'Tribes of the Confluence');
+
+    beforeEach(() => {
+        localStorage.clear();
+        fake = createFakeSupabase({ session: null });
+    });
+
+    const currentRealQuestion = () => {
+        const heading = document.querySelector('h2')?.textContent;
+        const q = TITLE.questions.find((q) => q.question === heading);
+        if (!q) throw new Error(`No match in TITLE data for displayed question: ${heading}`);
+        return q;
+    };
+
+    const answerAndAdvance = async (choice) => {
+        const q = currentRealQuestion();
+        const optionText = choice === 'correct' ? q.options[q.answer] : q.options[(q.answer + 1) % q.options.length];
+        const option = [...document.querySelectorAll('button.w-full.p-4')].find((b) => b.textContent.includes(optionText));
+        fireEvent.click(option);
+        fireEvent.click(await screen.findByRole('button', { name: /confirm selection/i }));
+        const next = await screen.findByRole('button', { name: 'Next' });
+        await waitFor(() => expect(next).not.toBeDisabled());
+        fireEvent.click(next);
+    };
+
+    it('20 correct answers produce exactly 2,000 points, 100 at a time', async () => {
+        render(<GameEngine user={null} onExit={() => { }} />);
+        fireEvent.click(screen.getByRole('button', { name: /Tribes of the Confluence/i }));
+        await waitFor(() => expect(document.body.textContent).toMatch(/Q1\/20/));
+
+        // First correct answer: exactly 100 points, not more. The HUD label
+        // is "Score" in the DOM (rendered as "SCORE" only via CSS
+        // text-transform), so match case-insensitively.
+        await answerAndAdvance('correct');
+        await waitFor(() => expect(document.body.textContent).toMatch(/Score\s*100/i));
+
+        for (let i = 1; i < TITLE.questions.length; i++) {
+            await answerAndAdvance('correct');
+        }
+
+        await screen.findByText(/quest mastered|quest complete/i);
+        expect(screen.getByText('20 of 20 correct')).toBeTruthy();
+        expect(screen.getByText('Quest Mastered!')).toBeTruthy(); // a perfect run
+        expect(document.body.textContent).toMatch(/2,000|2000/);
+
+        const stored = JSON.parse(localStorage.getItem('kogi-quest-progress-v1'));
+        expect(stored.scoredQuestionIds.length).toBe(20);
+        expect(stored.scoredQuestionIds.length * 100).toBe(2000);
+    });
+
+    it('wrong answers add zero points', async () => {
+        render(<GameEngine user={null} onExit={() => { }} />);
+        fireEvent.click(screen.getByRole('button', { name: /Tribes of the Confluence/i }));
+        await waitFor(() => expect(document.body.textContent).toMatch(/Q1\//));
+
+        for (let i = 0; i < TITLE.questions.length; i++) {
+            await answerAndAdvance('wrong');
+        }
+
+        await screen.findByText(/quest complete/i);
+        expect(screen.getByText('0 of 20 correct')).toBeTruthy();
+        const stored = JSON.parse(localStorage.getItem('kogi-quest-progress-v1'));
+        expect(stored.scoredQuestionIds.length).toBe(0);
+    });
+
+    it('replaying a completed title after answering it all correctly cannot duplicate points', async () => {
+        render(<GameEngine user={null} onExit={() => { }} />);
+        fireEvent.click(screen.getByRole('button', { name: /Tribes of the Confluence/i }));
+        await waitFor(() => expect(document.body.textContent).toMatch(/Q1\//));
+        for (let i = 0; i < TITLE.questions.length; i++) await answerAndAdvance('correct');
+        await screen.findByText(/quest mastered/i);
+
+        let stored = JSON.parse(localStorage.getItem('kogi-quest-progress-v1'));
+        expect(stored.scoredQuestionIds.length * 100).toBe(2000);
+
+        // Play Again and answer every question correctly a second time.
+        fireEvent.click(screen.getByRole('button', { name: /play again/i }));
+        await waitFor(() => expect(document.body.textContent).toMatch(/Q1\//));
+        for (let i = 0; i < TITLE.questions.length; i++) await answerAndAdvance('correct');
+        await screen.findByText(/quest mastered/i);
+
+        stored = JSON.parse(localStorage.getItem('kogi-quest-progress-v1'));
+        expect(stored.scoredQuestionIds.length * 100).toBe(2000); // still 2000, not 4000
+        expect(document.body.textContent).toMatch(/2,000|2000/);
+    });
+});

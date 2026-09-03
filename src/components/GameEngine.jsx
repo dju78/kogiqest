@@ -382,8 +382,11 @@ const GameEngine = ({ onExit, user }) => {
                                         ? "Incredible! You are a true Legend of the Confluence!"
                                         : "Great effort! Review the history books and try again to achieve a perfect score."}
                                 </p>
-                                <p className="text-slate-400 mb-6 max-w-md">
+                                <p className="text-slate-400 mb-1 max-w-md">
                                     You've finished {activeTitle.title}.
+                                </p>
+                                <p className="text-cyan-300 font-semibold mb-6">
+                                    {titleCorrectCount(progress, activeTitleId)} of {orderedQuestions.length} correct
                                 </p>
 
                                 <div className="mb-8">
