@@ -28,7 +28,12 @@ const Leaderboard = ({ isOpen, onClose }) => {
             setLeaders(data || []);
         } catch (err) {
             console.error('Error fetching leaderboard:', err);
-            setError('Failed to load leaderboard. Please try again later.');
+            // PGRST205 = the table does not exist yet in the Supabase schema.
+            setError(
+                err?.code === 'PGRST205'
+                    ? "The leaderboard table hasn't been created in Supabase yet, so there are no scores to show."
+                    : 'Failed to load leaderboard. Please try again later.'
+            );
         } finally {
             setLoading(false);
         }

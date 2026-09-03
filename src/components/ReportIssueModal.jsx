@@ -29,8 +29,12 @@ const ReportIssueModal = ({ isOpen, onClose, questionId, questionText, user }) =
 
             if (error) {
                 // Check if it's the mock client error
-                if (error.message && error.message.includes('Missing Keys')) {
+                if (error.message && error.message.includes('Supabase not configured')) {
                     throw new Error('Supabase is not configured yet. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.');
+                }
+                // PGRST205 = the table does not exist yet in the Supabase schema.
+                if (error.code === 'PGRST205') {
+                    throw new Error("Reports can't be saved yet: the question_suggestions table is missing in Supabase.");
                 }
                 throw error;
             }

@@ -6,6 +6,7 @@ import { KOGI_EXPANSION_DATA } from './kogi_expansion_data.js'; // Expansion Pac
 import { kogiIndustriesQuestions } from './kogi_industries_data.js'; // Industries (Level 8)
 import { kogiCultureGeneralQuestions } from './kogi_culture_general_data.js'; // Culture (Level 9)
 import { kogiNotablePeopleQuestions } from './kogi_notable_people_data.js'; // Notable People (Level 10)
+import { taketeIdeQuestions } from './takete_ide_data.js'; // Takete-Ide, Amuro (Level 11)
 
 // Combine all data for easier access if needed
 const allQuestions = [
@@ -16,7 +17,8 @@ const allQuestions = [
     ...KOGI_EXPANSION_DATA,
     ...kogiIndustriesQuestions,
     ...kogiCultureGeneralQuestions,
-    ...kogiNotablePeopleQuestions
+    ...kogiNotablePeopleQuestions,
+    ...taketeIdeQuestions
 ];
 
 // Helper to get questions by category/tags
@@ -73,10 +75,27 @@ function getQuestionsForLevel(level, count) {
     } else if (level === 10) {
         // Notable People
         filtered = kogiNotablePeopleQuestions;
+    } else if (level === 11) {
+        // Takete-Ide, Amuro District
+        filtered = taketeIdeQuestions;
     }
 
-    // Shuffle and slice
-    const shuffled = filtered.sort(() => 0.5 - Math.random());
+    // Drop any duplicates that appear in more than one source file
+    const seen = new Set();
+    const unique = filtered.filter(q => {
+        const key = q?.question;
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+
+    // Fisher-Yates on a copy: `Array.prototype.sort` with a random comparator is
+    // biased, and sorting `filtered` in place would mutate the imported data modules.
+    const shuffled = [...unique];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
     return shuffled.slice(0, count);
 }
 
@@ -140,6 +159,12 @@ export const GAME_LEVELS = [
         title: "Legends & Icons",
         questions: getQuestionsForLevel(10, 50),
         color: "from-indigo-400 to-violet-500"
+    },
+    {
+        id: 11,
+        title: "Takete-Ide of Amuro",
+        questions: getQuestionsForLevel(11, 100),
+        color: "from-emerald-400 to-cyan-500"
     }
 ];
 

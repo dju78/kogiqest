@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, CheckCircle, XCircle, ArrowRight, RotateCcw, Trophy, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, CheckCircle, XCircle, ArrowRight, RotateCcw, Trophy, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { GAME_LEVELS } from '../lib/constants';
@@ -21,6 +21,14 @@ const GameEngine = ({ onExit, user }) => {
     const [stagedOption, setStagedOption] = useState(null); // Option selected but not yet confirmed
     const [hasAnswered, setHasAnswered] = useState(false);
     const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+    const [submitError, setSubmitError] = useState(null);
+
+    // Pending "auto advance" timer, so it can be cancelled if the player navigates manually
+    const advanceTimer = useRef(null);
+    // Guards against submitting the same finished run to the leaderboard more than once
+    const hasSubmittedScore = useRef(false);
+    // High score as it was when this run started, so "New High Score!" stays truthful
+    const previousHighScore = useRef(0);
 
     const currentLevel = GAME_LEVELS[currentLevelIndex];
     const currentQuestion = currentLevel.questions[currentQuestionIndex];
@@ -34,44 +42,65 @@ const GameEngine = ({ onExit, user }) => {
 
     // Load High Score on mount
     useEffect(() => {
-        const saved = localStorage.getItem('kogi-quest-highscore');
-        if (saved) setHighScore(parseInt(saved));
+        const saved = parseInt(localStorage.getItem('kogi-quest-highscore') || '0', 10);
+        if (!Number.isNaN(saved) && saved > 0) {
+            setHighScore(saved);
+            previousHighScore.current = saved;
+        }
     }, []);
+
+    // Never leave a pending auto-advance timer behind on unmount
+    useEffect(() => () => clearTimeout(advanceTimer.current), []);
 
     // Save High Score on game complete
     useEffect(() => {
-        if (gameState === 'gameComplete') {
-            // Local high score
-            if (score > highScore) {
-                setHighScore(score);
-                localStorage.setItem('kogi-quest-highscore', score.toString());
-            }
+        if (gameState !== 'gameComplete') return;
+        if (hasSubmittedScore.current) return;
+        hasSubmittedScore.current = true;
 
-            // Global leaderboard submission
-            if (user && score > 0) {
-                const submitScore = async () => {
-                    try {
-                        const { error } = await supabase
-                            .from('leaderboard')
-                            .insert({
-                                user_id: user.id,
-                                username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Explorer',
-                                score: score,
-                                level: currentLevelIndex + 1
-                            });
-                        if (error) throw error;
-                    } catch (err) {
-                        console.error('Error submitting score to leaderboard:', err);
-                    }
-                };
-                submitScore();
+        // Local high score
+        setHighScore(prev => {
+            if (score > prev) {
+                localStorage.setItem('kogi-quest-highscore', score.toString());
+                return score;
             }
+            return prev;
+        });
+
+        // Global leaderboard submission
+        if (user && score > 0) {
+            (async () => {
+                const { error } = await supabase
+                    .from('leaderboard')
+                    .insert({
+                        user_id: user.id,
+                        username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Explorer',
+                        score: score,
+                        level: currentLevelIndex + 1
+                    });
+                if (error) {
+                    console.error('Error submitting score to leaderboard:', error);
+                    setSubmitError("Your score couldn't be saved to the global leaderboard.");
+                }
+            })();
         }
-    }, [gameState, score, highScore, user, currentLevelIndex]);
+    }, [gameState, score, user, currentLevelIndex]);
 
     const handleOptionSelect = (optionIndex) => {
         if (selectedOption !== null) return; // Already answered
         setStagedOption(optionIndex);
+    };
+
+    const goToQuestion = (index) => {
+        clearTimeout(advanceTimer.current);
+        setStagedOption(null);
+        setCurrentQuestionIndex(index);
+
+        // Restore a previously given answer, or present the question as unanswered
+        const history = answersHistory[index];
+        setSelectedOption(history ? history.selectedOption : null);
+        setFeedback(history ? history.feedback : null);
+        setHasAnswered(!!history);
     };
 
     const handleConfirmSubmission = () => {
@@ -99,86 +128,71 @@ const GameEngine = ({ onExit, user }) => {
             }
         }));
 
-        // Auto advance after 1.5s
-        setTimeout(() => {
+        // Auto advance after 1.5s (cancelled if the player navigates first)
+        clearTimeout(advanceTimer.current);
+        advanceTimer.current = setTimeout(() => {
             handleNextQuestion();
         }, 1500);
     };
 
     const handleNextQuestion = () => {
-        setStagedOption(null);
-        // Advance to next or finish
         if (currentQuestionIndex < currentLevel.questions.length - 1) {
-            const nextIdx = currentQuestionIndex + 1;
-            setCurrentQuestionIndex(nextIdx);
-
-            // Restore from history if it exists
-            const history = answersHistory[nextIdx];
-            if (history) {
-                setSelectedOption(history.selectedOption);
-                setFeedback(history.feedback);
-                setHasAnswered(true);
-            } else {
-                setSelectedOption(null);
-                setFeedback(null);
-                setHasAnswered(false);
-            }
-        } else {
-            // Level Complete
-            setSelectedOption(null);
-            setFeedback(null);
-            if (currentLevelIndex < GAME_LEVELS.length - 1) {
-                setGameState('levelComplete');
-            } else {
-                setGameState('gameComplete');
-            }
+            goToQuestion(currentQuestionIndex + 1);
+            return;
         }
+
+        // Level Complete
+        clearTimeout(advanceTimer.current);
+        setStagedOption(null);
+        setSelectedOption(null);
+        setFeedback(null);
+        setHasAnswered(false);
+        setGameState(currentLevelIndex < GAME_LEVELS.length - 1 ? 'levelComplete' : 'gameComplete');
     };
 
     const handlePrevQuestion = () => {
-        setStagedOption(null);
         if (currentQuestionIndex > 0) {
-            const prevIdx = currentQuestionIndex - 1;
-            setCurrentQuestionIndex(prevIdx);
-
-            // Restore from history
-            const history = answersHistory[prevIdx];
-            if (history) {
-                setSelectedOption(history.selectedOption);
-                setFeedback(history.feedback);
-                setHasAnswered(true);
-            } else {
-                // If moving back to an unanswered question (shouldn't happen with current logic but for safety)
-                setHasAnswered(false);
-            }
+            goToQuestion(currentQuestionIndex - 1);
         }
     };
 
     const nextLevel = () => {
+        clearTimeout(advanceTimer.current);
         setCurrentLevelIndex(i => i + 1);
         setCurrentQuestionIndex(0);
         setLevelCorrectCount(0); // Reset for next level
         setAnswersHistory({}); // Reset history for new level
+        setStagedOption(null);
+        setSelectedOption(null);
+        setFeedback(null);
+        setHasAnswered(false);
         setGameState('playing');
     };
 
     const resetGame = () => {
+        clearTimeout(advanceTimer.current);
+        hasSubmittedScore.current = false;
+        previousHighScore.current = highScore;
         setCurrentLevelIndex(0);
         setCurrentQuestionIndex(0);
         setScore(0);
         setLevelCorrectCount(0);
         setAnswersHistory({});
+        setStagedOption(null);
+        setSelectedOption(null);
+        setFeedback(null);
         setHasAnswered(false);
+        setSubmitError(null);
         setGameState('playing');
     };
 
     return (
-        <div className="container mx-auto p-4 md:p-8 h-full flex flex-col relative overflow-hidden">
+        <div className="container mx-auto p-4 md:p-8 flex-1 flex flex-col relative">
             {/* Show Bubbles if perfect score (Overall or Level) */}
             {(gameState === 'gameComplete' && isPerfectScore) || (gameState === 'levelComplete' && isLevelPerfect) ? <Bubbles /> : null}
 
             {/* HUD */}
-            <div className="flex justify-between items-center mb-6 bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur-md relative z-10">
+            <div className="flex flex-wrap gap-3 justify-between items-center mb-6 bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur-md relative z-10">
                 <button
                     onClick={onExit}
                     className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors text-sm font-medium"
@@ -208,7 +222,7 @@ const GameEngine = ({ onExit, user }) => {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className={`h-full flex flex-col justify-center max-w-3xl mx-auto w-full transition-all duration-300
+                                className={`flex-1 flex flex-col justify-center max-w-3xl mx-auto w-full transition-all duration-300
                                     ${feedback === 'incorrect' ? 'animate-shake' : ''}
                                     ${feedback === 'correct' ? 'animate-success' : ''}
                                 `}
@@ -238,17 +252,17 @@ const GameEngine = ({ onExit, user }) => {
                                     </span>
                                 </div>
 
-                                <h2 className="text-2xl md:text-4xl font-bold mb-12 leading-tight">
+                                <h2 className="text-xl sm:text-2xl md:text-4xl font-bold mb-8 md:mb-12 leading-tight">
                                     {currentQuestion.question}
                                 </h2>
 
-                                <div className="space-y-4">
+                                <div className="space-y-3 sm:space-y-4">
                                     {currentQuestion.options.map((option, idx) => (
                                         <button
                                             key={idx}
                                             onClick={() => handleOptionSelect(idx)}
                                             disabled={selectedOption !== null}
-                                            className={`w-full p-6 rounded-xl border-2 text-left text-lg font-medium transition-all duration-200 
+                                            className={`w-full p-4 sm:p-6 rounded-xl border-2 text-left text-base sm:text-lg font-medium transition-all duration-200 
                             ${selectedOption === null
                                                     ? stagedOption === idx
                                                         ? 'bg-cyan-500/10 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.2)]'
@@ -313,7 +327,7 @@ const GameEngine = ({ onExit, user }) => {
                                 key="levelinfo"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="h-full flex flex-col items-center justify-center text-center relative"
+                                className="flex-1 flex flex-col items-center justify-center text-center relative py-12"
                             >
                                 <div className="w-20 h-20 bg-cyan-500 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-cyan-500/50">
                                     <CheckCircle className="w-10 h-10 text-white" />
@@ -343,7 +357,7 @@ const GameEngine = ({ onExit, user }) => {
                                 key="gameover"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="h-full flex flex-col items-center justify-center text-center relative"
+                                className="flex-1 flex flex-col items-center justify-center text-center relative py-12"
                             >
                                 <h2 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-orange-500">
                                     {isPerfectScore ? "Perfect Quest!" : "Quest Complete!"}
@@ -357,14 +371,20 @@ const GameEngine = ({ onExit, user }) => {
                                         : "Great effort! Review the history books and try again to achieve a perfect score. You can do it!"}
                                 </p>
 
-                                {score >= highScore && score > 0 && (
+                                {score > previousHighScore.current && score > 0 && (
                                     <div className="mb-8 flex items-center gap-2 text-yellow-400 animate-pulse">
                                         <Trophy className="w-6 h-6" />
                                         <span className="font-bold">New High Score!</span>
                                     </div>
                                 )}
 
-                                <div className="flex gap-4">
+                                {submitError && (
+                                    <p className="mb-6 text-sm text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 max-w-md">
+                                        {submitError}
+                                    </p>
+                                )}
+
+                                <div className="flex flex-wrap justify-center gap-4">
                                     <button
                                         onClick={resetGame}
                                         className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full font-bold flex items-center gap-2 transition-colors"

@@ -5,8 +5,8 @@ const Layout = ({ children, user, onLoginClick, onLogoutClick }) => {
     const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-950 text-white overflow-hidden">
-            <header className="p-6 flex justify-between items-center backdrop-blur-sm bg-white/5 border-b border-white/10 z-20">
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-950 text-white overflow-x-hidden">
+            <header className="p-4 sm:p-6 flex flex-wrap gap-3 justify-between items-center backdrop-blur-sm bg-white/5 border-b border-white/10 z-20 shrink-0">
                 <div className="flex items-center gap-2">
                     <Rocket className="w-8 h-8 text-cyan-400" />
                     <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-400">
@@ -40,13 +40,13 @@ const Layout = ({ children, user, onLoginClick, onLogoutClick }) => {
                 </div>
             </header>
 
-            <main className="flex-1 relative">
+            <main className="flex-1 relative flex flex-col">
                 {/* Background decorative elements */}
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" style={{ animationDelay: '2s' }} />
                 <div className="absolute top-[30%] left-[20%] w-[20%] h-[20%] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none animate-float" />
 
-                <div className="relative z-10 h-full">
+                <div className="relative z-10 flex-1 flex flex-col">
                     {children}
                 </div>
             </main>

@@ -2,7 +2,6 @@ import React from 'react';
 import { Play, Star, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import Leaderboard from './Leaderboard';
 
 const Hero = ({ user }) => {
@@ -18,16 +17,16 @@ const Hero = ({ user }) => {
     };
 
     return (
-        <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-20">
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 sm:p-8 text-center">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="max-w-2xl space-y-8"
+                className="max-w-2xl space-y-6 sm:space-y-8"
             >
                 <div className="inline-block p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md mb-4 shadow-2xl shadow-purple-500/20 glass">
                     <Star className="w-16 h-16 text-yellow-400 mx-auto mb-2 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]" />
-                    <h2 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-purple-200 text-glow">
+                    <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-purple-200 text-glow">
                         Adventure Awaits
                     </h2>
                 </div>
@@ -47,7 +46,7 @@ const Hero = ({ user }) => {
                     <div className="absolute inset-0 rounded-full bg-white/20 blur-xl opacity-0 group-hover:opacity-40 transition-opacity" />
                 </motion.button>
 
-                <div className="flex justify-center gap-8 pt-12 text-sm text-slate-400">
+                <div className="flex justify-center gap-8 pt-8 sm:pt-12 text-sm text-slate-400">
                     <button
                         onClick={() => setIsLeaderboardOpen(true)}
                         className="flex items-center gap-2 hover:text-cyan-400 transition-colors"

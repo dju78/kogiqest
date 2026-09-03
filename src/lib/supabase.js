@@ -25,12 +25,26 @@ if (isValidUrl && supabaseAnonKey) {
             signUp: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
             signOut: () => Promise.resolve({ error: null })
         },
-        from: () => ({
-            insert: () => Promise.resolve({ error: { message: 'Supabase not configured. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } }),
-            select: () => Promise.resolve({ data: [], error: null }),
-            update: () => Promise.resolve({ error: { message: 'Supabase not configured. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } }),
-            delete: () => Promise.resolve({ error: { message: 'Supabase not configured. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' } })
-        })
+        from: () => {
+            const notConfigured = { message: 'Supabase not configured. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.' };
+
+            // Query builders are chainable (.select().order().limit()) and also
+            // thenable, so callers can await them at any point in the chain.
+            const builder = (result) => new Proxy(
+                { then: (resolve, reject) => Promise.resolve(result).then(resolve, reject) },
+                {
+                    get: (target, prop) =>
+                        prop in target ? target[prop] : () => builder(result)
+                }
+            );
+
+            return {
+                insert: () => builder({ data: null, error: notConfigured }),
+                select: () => builder({ data: [], error: null }),
+                update: () => builder({ data: null, error: notConfigured }),
+                delete: () => builder({ data: null, error: notConfigured })
+            };
+        }
     };
 }
 
