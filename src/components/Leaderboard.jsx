@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, TABLES, LEADERBOARD_PUBLIC_COLUMNS } from '../lib/supabase';
 import { Trophy, Medal, User, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,10 +18,15 @@ const Leaderboard = ({ isOpen, onClose }) => {
         setLoading(true);
         setError(null);
         try {
+            // Reads the base table, naming only the columns the browser is
+            // granted. `user_id` is granted to no client role, so it can be
+            // neither selected nor filtered on: auth user IDs never reach the
+            // browser, and no definer-rights view is involved.
             const { data, error } = await supabase
-                .from('leaderboard')
-                .select('*')
+                .from(TABLES.leaderboard)
+                .select(LEADERBOARD_PUBLIC_COLUMNS)
                 .order('score', { ascending: false })
+                .order('created_at', { ascending: true })
                 .limit(10);
 
             if (error) throw error;
@@ -31,7 +36,7 @@ const Leaderboard = ({ isOpen, onClose }) => {
             // PGRST205 = the table does not exist yet in the Supabase schema.
             setError(
                 err?.code === 'PGRST205'
-                    ? "The leaderboard table hasn't been created in Supabase yet, so there are no scores to show."
+                    ? 'The leaderboard has not been set up in Supabase yet, so there are no scores to show.'
                     : 'Failed to load leaderboard. Please try again later.'
             );
         } finally {
@@ -125,7 +130,7 @@ const Leaderboard = ({ isOpen, onClose }) => {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-xl font-black text-cyan-400">{entry.score.toLocaleString()}</div>
+                                                <div className="text-xl font-black text-cyan-400">{(entry.score ?? 0).toLocaleString()}</div>
                                                 <div className="text-[10px] text-slate-600 uppercase tracking-widest">Points</div>
                                             </div>
                                         </motion.div>

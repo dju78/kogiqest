@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, TABLES } from '../lib/supabase';
 import { X, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -14,27 +14,38 @@ const ReportIssueModal = ({ isOpen, onClose, questionId, questionText, user }) =
         setStatus('submitting');
 
         try {
-            const userId = user?.id || null;
+            // Reports are attributable by design: RLS requires user_id to
+            // equal auth.uid(), so only signed-in players can file one.
+            if (!user?.id) {
+                throw new Error('Please sign in before reporting an issue.');
+            }
+            if (!suggestion.trim() && !comment.trim()) {
+                throw new Error('Add a suggested answer or a comment before submitting.');
+            }
+
             const { error } = await supabase
-                .from('question_suggestions')
-                .insert([
-                    {
-                        question_id: questionId,
-                        user_id: userId,
-                        suggested_answer: suggestion,
-                        user_comment: comment,
-                        status: 'pending' // pending review
-                    }
-                ]);
+                .from(TABLES.questionSuggestions)
+                .insert({
+                    question_id: String(questionId).slice(0, 100),
+                    user_id: user.id,
+                    suggested_answer: suggestion.trim().slice(0, 500) || null,
+                    user_comment: comment.trim().slice(0, 2000) || null
+                    // `status` is deliberately omitted. The column defaults to
+                    // 'pending' and the RLS policy rejects any other value, so
+                    // a client cannot file a pre-approved report.
+                });
 
             if (error) {
-                // Check if it's the mock client error
-                if (error.message && error.message.includes('Supabase not configured')) {
-                    throw new Error('Supabase is not configured yet. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.');
+                if (error.code === 'NOT_CONFIGURED') {
+                    throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
                 }
-                // PGRST205 = the table does not exist yet in the Supabase schema.
+                // PGRST205 = the table is not in the Supabase schema cache.
                 if (error.code === 'PGRST205') {
-                    throw new Error("Reports can't be saved yet: the question_suggestions table is missing in Supabase.");
+                    throw new Error('Reports cannot be saved yet: the KogiQuest report table has not been created in Supabase.');
+                }
+                // 42501 / RLS rejection.
+                if (error.code === '42501' || /row-level security/i.test(error.message || '')) {
+                    throw new Error('You do not have permission to submit this report. Try signing in again.');
                 }
                 throw error;
             }

@@ -14,6 +14,11 @@ export type Database = {
   }
   public: {
     Tables: {
+      /**
+       * NOT a KogiQuest table. Belongs to another application in this shared
+       * Supabase project. Do not read or write it from this codebase; use
+       * kogi_quest_question_suggestions instead.
+       */
       question_suggestions: {
         Row: {
           created_at: string
@@ -43,6 +48,90 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      /**
+       * Client roles hold SELECT on (id, created_at, username, score, level)
+       * only — `user_id` and `updated_at` are granted to nobody, and there is
+       * no client INSERT/UPDATE/DELETE grant. Writes go through
+       * kogi_quest_submit_score(). The Insert/Update shapes below describe the
+       * table, not what a browser client may do.
+       */
+      kogi_quest_leaderboard: {
+        Row: {
+          created_at: string
+          id: string
+          level: number
+          score: number
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          level?: number
+          score?: number
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          level?: number
+          score?: number
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kogi_quest_leaderboard_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kogi_quest_question_suggestions: {
+        Row: {
+          created_at: string
+          id: string
+          question_id: string
+          status: string
+          suggested_answer: string | null
+          user_comment: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          question_id: string
+          /** Always defaults to 'pending'; RLS rejects any other value on insert. */
+          status?: "pending"
+          suggested_answer?: string | null
+          user_comment?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          question_id?: string
+          status?: string
+          suggested_answer?: string | null
+          user_comment?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kogi_quest_question_suggestions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       questions: {
         Row: {
@@ -79,7 +168,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      /**
+       * The only write path to kogi_quest_leaderboard. SECURITY DEFINER with a
+       * fixed empty search_path; EXECUTE is granted to `authenticated` only.
+       * The owner is taken from auth.uid(), never from a parameter. Keeps the
+       * caller's highest score and returns it.
+       *
+       * Scores are self-reported: the function validates shape and range, not
+       * that the player earned the score.
+       */
+      kogi_quest_submit_score: {
+        Args: {
+          p_score: number
+          p_level: number
+          p_username: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

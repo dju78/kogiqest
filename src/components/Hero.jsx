@@ -8,13 +8,9 @@ const Hero = ({ user }) => {
     const [isLeaderboardOpen, setIsLeaderboardOpen] = React.useState(false);
     const navigate = useNavigate();
 
-    const handleStart = () => {
-        if (!user) {
-            navigate("/auth");
-            return;
-        }
-        navigate("/quiz");
-    };
+    // No account is required to play. Signing in is only needed to save a
+    // score to the global leaderboard.
+    const handleStart = () => navigate("/quiz");
 
     return (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 sm:p-8 text-center">

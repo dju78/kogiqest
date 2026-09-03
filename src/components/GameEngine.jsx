@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, CheckCircle, XCircle, ArrowRight, RotateCcw, Trophy, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../lib/supabase';
-import { GAME_LEVELS } from '../lib/constants';
+import { supabase, RPC } from '../lib/supabase';
+import { GAME_LEVELS, MAX_POSSIBLE_SCORE, POINTS_PER_QUESTION } from '../lib/constants';
 import Leaderboard from './Leaderboard';
 import Bubbles from './Bubbles';
 import ReportIssueModal from './ReportIssueModal';
@@ -22,6 +22,7 @@ const GameEngine = ({ onExit, user }) => {
     const [hasAnswered, setHasAnswered] = useState(false);
     const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
     const [submitError, setSubmitError] = useState(null);
+    const [showGuestNudge, setShowGuestNudge] = useState(false);
 
     // Pending "auto advance" timer, so it can be cancelled if the player navigates manually
     const advanceTimer = useRef(null);
@@ -33,9 +34,8 @@ const GameEngine = ({ onExit, user }) => {
     const currentLevel = GAME_LEVELS[currentLevelIndex];
     const currentQuestion = currentLevel.questions[currentQuestionIndex];
 
-    // Calculate Max Score dynamically
-    const MAX_SCORE = GAME_LEVELS.reduce((acc, level) => acc + level.questions.length, 0) * 100;
-    const isPerfectScore = score === MAX_SCORE;
+    // Shared with the database constraints; see lib/constants.js.
+    const isPerfectScore = score === MAX_POSSIBLE_SCORE;
 
     // Check if current level was perfect
     const isLevelPerfect = levelCorrectCount === currentLevel.questions.length;
@@ -67,17 +67,30 @@ const GameEngine = ({ onExit, user }) => {
             return prev;
         });
 
-        // Global leaderboard submission
-        if (user && score > 0) {
+        // Guests play the full game; their best score lives in localStorage
+        // above. No database call is made for them at all, so finishing as a
+        // guest can never surface a backend error.
+        if (!user) {
+            if (score > 0) setShowGuestNudge(true);
+            return;
+        }
+
+        // Signed-in players submit through the single secure write path. The
+        // function derives the owner from auth.uid() and keeps whichever score
+        // is higher, so no client-supplied user id is involved.
+        if (score > 0) {
             (async () => {
-                const { error } = await supabase
-                    .from('leaderboard')
-                    .insert({
-                        user_id: user.id,
-                        username: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Explorer',
-                        score: score,
-                        level: currentLevelIndex + 1
-                    });
+                const username =
+                    user.user_metadata?.full_name?.trim() ||
+                    user.email?.split('@')[0] ||
+                    'Explorer';
+
+                const { error } = await supabase.rpc(RPC.submitScore, {
+                    p_score: score,
+                    p_level: currentLevelIndex + 1,
+                    p_username: username.slice(0, 50)
+                });
+
                 if (error) {
                     console.error('Error submitting score to leaderboard:', error);
                     setSubmitError("Your score couldn't be saved to the global leaderboard.");
@@ -112,7 +125,7 @@ const GameEngine = ({ onExit, user }) => {
 
         if (isCorrect) {
             setFeedback('correct');
-            setScore(s => s + 100);
+            setScore(s => s + POINTS_PER_QUESTION);
             setLevelCorrectCount(c => c + 1);
         } else {
             setFeedback('incorrect');
@@ -183,6 +196,7 @@ const GameEngine = ({ onExit, user }) => {
         setFeedback(null);
         setHasAnswered(false);
         setSubmitError(null);
+        setShowGuestNudge(false);
         setGameState('playing');
     };
 
@@ -376,6 +390,12 @@ const GameEngine = ({ onExit, user }) => {
                                         <Trophy className="w-6 h-6" />
                                         <span className="font-bold">New High Score!</span>
                                     </div>
+                                )}
+
+                                {showGuestNudge && (
+                                    <p className="mb-6 text-sm text-cyan-200 bg-cyan-500/10 border border-cyan-400/20 rounded-xl px-4 py-3 max-w-md">
+                                        Great score! Sign in if you would like to save it to the global leaderboard.
+                                    </p>
                                 )}
 
                                 {submitError && (

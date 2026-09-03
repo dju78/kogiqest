@@ -168,6 +168,25 @@ export const GAME_LEVELS = [
     }
 ];
 
+/** Points awarded for each correct answer. */
+export const POINTS_PER_QUESTION = 100;
+
+/** Highest level a player can reach, and the largest value ever submitted. */
+export const MAX_LEVEL = GAME_LEVELS.length;
+
+/**
+ * The highest score a perfect run can produce.
+ *
+ * The database mirrors these two values in
+ * supabase/migrations/0001_kogi_quest_namespaced_schema.sql —
+ * `kogi_quest_leaderboard_score_check`, `kogi_quest_leaderboard_level_check`
+ * and the validation inside `kogi_quest_submit_score()`. If questions or
+ * levels are added, re-run that migration so the constraints keep matching;
+ * it is idempotent and updates them in place.
+ */
+export const MAX_POSSIBLE_SCORE =
+    GAME_LEVELS.reduce((total, level) => total + level.questions.length, 0) * POINTS_PER_QUESTION;
+
 export const THEME_COLORS = {
     primary: "cyan",
     secondary: "purple",

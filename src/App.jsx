@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { supabase } from './lib/supabase';
+import { supabase, configError } from './lib/supabase';
 import Layout from './components/Layout';
 import Hero from './components/Hero';
 import GameEngine from './components/GameEngine';
 import Auth from './components/Auth';
-
-const ProtectedRoute = ({ user, children }) => {
-    if (!user) {
-        return <Navigate to="/auth" replace />;
-    }
-    return children;
-};
+import ConfigurationError from './components/ConfigurationError';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -19,6 +13,11 @@ function App() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (configError) {
+            setLoading(false);
+            return;
+        }
+
         // Check active sessions and sets the user
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null);
@@ -37,6 +36,12 @@ function App() {
 
         return () => subscription.unsubscribe();
     }, []);
+
+    // A misconfigured build gets an explicit, actionable screen rather than a
+    // spinner that never resolves.
+    if (configError) {
+        return <ConfigurationError title={configError.title} detail={configError.detail} />;
+    }
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -75,13 +80,11 @@ function App() {
                         )
                     }
                 />
+                {/* Open to everyone. `user` may be null: GameEngine plays the
+                    full quiz for guests and simply skips leaderboard writes. */}
                 <Route
                     path="/quiz"
-                    element={
-                        <ProtectedRoute user={user}>
-                            <GameEngine user={user} onExit={() => navigate('/')} />
-                        </ProtectedRoute>
-                    }
+                    element={<GameEngine user={user} onExit={() => navigate('/')} />}
                 />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

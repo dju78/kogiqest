@@ -12,19 +12,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install
         run: npm ci
 
+      - name: Typecheck database types
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      # Runs the migration and the RLS suite against a throwaway Postgres
+      # service container. Never touches the hosted Supabase project.
+      - name: Database / RLS tests
+        run: npm run test:db
+        env:
+          KQ_TEST_PG: postgres://postgres:postgres@localhost:5432
+
+      - name: Warn if Supabase build variables are absent
+        if: ${{ vars.SKIP_SUPABASE_CHECK != 'true' }}
+        run: |
+          if [ -z "${{ secrets.VITE_SUPABASE_URL }}" ] || [ -z "${{ secrets.VITE_SUPABASE_ANON_KEY }}" ]; then
+            echo "::warning title=Supabase not configured::VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY are not set. The deployed app will show its configuration error screen. See DEPLOYMENT_SETUP.md."
+          fi
+
       - name: Build
         run: npm run build
         env:
+          # Only the public anon/publishable key is ever passed to the build.
+          # A service-role key must never appear here: VITE_ variables are
+          # inlined into the browser bundle.
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
@@ -34,3 +59,15 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
