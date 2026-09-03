@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, TABLES, LEADERBOARD_PUBLIC_COLUMNS } from '../lib/supabase';
+import { titleForLevel } from '../lib/constants';
 import { Trophy, Medal, User, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -126,7 +127,7 @@ const Leaderboard = ({ isOpen, onClose }) => {
                                                         <User className="w-3 h-3 text-slate-500" />
                                                         {entry.username || 'Anonymous Explorer'}
                                                     </span>
-                                                    <span className="text-xs text-slate-500 uppercase tracking-wider">Level {entry.level || 1}</span>
+                                                    <span className="text-xs text-slate-500 uppercase tracking-wider">{titleForLevel(entry.level || 1)}</span>
                                                 </div>
                                             </div>
                                             <div className="text-right">

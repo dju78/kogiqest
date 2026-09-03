@@ -142,6 +142,14 @@ describe('leaderboard display', () => {
         expect(fake.__state.calls).not.toContain('kogi_quest_leaderboard_public');
     });
 
+    it('required test 9: shows the title name for the internal level, never "Level 11"', async () => {
+        render(<Leaderboard isOpen onClose={() => { }} />);
+        await waitFor(() => expect(screen.getByText('ada')).toBeTruthy());
+        expect(screen.getByText('Takete-Ide of Amuro')).toBeTruthy();
+        expect(screen.queryByText(/level\s*11/i)).toBeNull();
+        expect(screen.queryByText(/^level/i)).toBeNull();
+    });
+
     it('asks only for granted columns', () => {
         const asked = LEADERBOARD_PUBLIC_COLUMNS.split(',').map((c) => c.trim());
         expect(asked.slice().sort()).toEqual([...GRANTED_COLUMNS].sort());

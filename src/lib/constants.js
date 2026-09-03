@@ -187,6 +187,30 @@ export const MAX_LEVEL = GAME_LEVELS.length;
 export const MAX_POSSIBLE_SCORE =
     GAME_LEVELS.reduce((total, level) => total + level.questions.length, 0) * POINTS_PER_QUESTION;
 
+/**
+ * Global id -> question lookup, spanning every title. Question ids are
+ * unique across the whole game (e.g. "trb1", "in7", "tki42"), which is what
+ * lets progress.js track "has this exact question ever been answered
+ * correctly" as one flat set instead of per-title bookkeeping.
+ */
+export const QUESTION_BY_ID = new Map();
+for (const title of GAME_LEVELS) {
+    for (const question of title.questions) {
+        QUESTION_BY_ID.set(question.id, question);
+    }
+}
+
+/**
+ * Maps the database's internal 1-11 `level` identifier to the title a player
+ * actually sees. The numeric column is a compatibility artifact of the
+ * Supabase schema (see supabase/migrations/0001_kogi_quest_namespaced_schema.sql)
+ * and must never be shown to a user on its own — always resolve it through
+ * this function first.
+ */
+export function titleForLevel(level) {
+    return GAME_LEVELS[level - 1]?.title ?? GAME_LEVELS[0].title;
+}
+
 export const THEME_COLORS = {
     primary: "cyan",
     secondary: "purple",
